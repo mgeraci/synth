@@ -1,7 +1,6 @@
 $(->
   init()
-
-  $('body').click ->
+  $('button').click ->
     adsr()
 )
 
@@ -35,32 +34,49 @@ oscillator = ->
     osc.frequency.value = 900
   , 500)
 
-adsr = (a = 80, d = 30, s = 100, sl = 0.7, r = 20)->
-  @grain = 10
-
-  # you should get from 0 to 1 in a ms, with steps of @grain
-  numberOfSteps = a / @grain
-  sizeOfSteps = 1 / numberOfSteps
+adsr = (a = 80, d = 100, s = 500, sl = 0.5, r = 100)->
+  grain = 10
   output = 0
 
+  # you should get from start to end in a ms, with steps of @grain
+  aNumberOfSteps = a / grain
+  aSizeOfSteps = 1 / aNumberOfSteps
+
+  dNumberOfSteps = d / grain
+  dSizeOfSteps = (1 - sl) / dNumberOfSteps
+
+  rNumberOfSteps = r / grain
+  rSizeOfSteps = sl / rNumberOfSteps
+
   # attack
-  for i in [0...numberOfSteps]
+  for i in [0...aNumberOfSteps]
     setTimeout(=>
-      output += sizeOfSteps
-      console.log output
-    , i * @grain)
+      output += aSizeOfSteps
+      @gainnode.gain.value = output
+    , i * grain)
 
   # decay
   setTimeout(=>
-    console.log 'start d'
+    for i in [0...dNumberOfSteps]
+      setTimeout(=>
+        output -= dSizeOfSteps
+        @gainnode.gain.value = output
+      , i * grain)
   , a)
 
-  # sustain
-  setTimeout(=>
-    console.log 'start d'
-  , a + d)
+  # sustain doesn't change the volume level, so nothing happens here
 
   # release
   setTimeout(=>
-    console.log 'start r'
+    for i in [0...rNumberOfSteps]
+      setTimeout(=>
+        output -= rSizeOfSteps
+        @gainnode.gain.value = output
+      , i * grain)
   , a + d + s)
+
+  # and set to 0 at the end
+  setTimeout(=>
+    output = 0
+    @gainnode.gain.value = output
+  , a + d + s + r)
