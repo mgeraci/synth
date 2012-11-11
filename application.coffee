@@ -75,63 +75,60 @@ oscillator = ->
 
 # adsr stands for attack, decay, sustain, release
 adsr = ->
-  grain = 1 # frequency of steps
-  output = 0 # let's start at 0
+  @grain = 1 # frequency of steps
+  @output = 0 # let's start at 0
 
   # clear any timeouts that exist from other notes
   clearTimeout(@aInnerTimeout) if @aInnerTimeout?
   clearTimeout(@dTimeout) if @dTimeout?
   clearTimeout(@dInnerTimeout) if @dInnerTimeout?
-  clearTimeout(@rTimeout) if @rTimeout?
   clearTimeout(@rInnerTimeout) if @rInnerTimeout?
   clearTimeout(@endTimeout) if @endTimeout?
 
   # you should get from start to end in a ms, with steps of @grain
-  aNumberOfSteps = @a / grain
+  aNumberOfSteps = @a / @grain
   aSizeOfSteps = 1 / aNumberOfSteps
 
-  dNumberOfSteps = @d / grain
+  dNumberOfSteps = @d / @grain
   dSizeOfSteps = (1 - @sl) / dNumberOfSteps
-
-  rNumberOfSteps = @r / grain
-  rSizeOfSteps = @sl / rNumberOfSteps
 
   # attack
   for i in [0...aNumberOfSteps]
     @aInnerTimeout = setTimeout(=>
-      output += aSizeOfSteps
-      @gainnode.gain.value = output
-    , i * grain)
+      @output += aSizeOfSteps
+      @gainnode.gain.value = @output
+    , i * @grain)
 
   # decay
   @dTimeout = setTimeout(=>
     for i in [0...dNumberOfSteps]
       @dInnerTimeout = setTimeout(=>
-        output -= dSizeOfSteps
-        @gainnode.gain.value = output
-      , i * grain)
+        @output -= dSizeOfSteps
+        @gainnode.gain.value = @output
+      , i * @grain)
   , @a)
 
-  # sustain doesn't change the volume level, so nothing happens here
+note = (freq)->
+  console.log 'note'
+  @osc.frequency.value = freq
+  adsr()
+
+noteOff = ->
+  rNumberOfSteps = @r / @grain
+  rSizeOfSteps = @sl / rNumberOfSteps
 
   # release
-  @rTimeout = setTimeout(=>
-    for i in [0...rNumberOfSteps]
-      @rInnerTimeout = setTimeout(=>
-        output -= rSizeOfSteps
-        @gainnode.gain.value = output
-      , i * grain)
-  , @a + @d + @s)
+  for i in [0...rNumberOfSteps]
+    @rInnerTimeout = setTimeout(=>
+      @output -= rSizeOfSteps
+      @gainnode.gain.value = @output
+    , i * @grain)
 
   # and set to 0 at the end
   @endTimeout = setTimeout(=>
-    output = 0
-    @gainnode.gain.value = output
-  , @a + @d + @s + @r + grain * 2)
-
-note = (freq)->
-  @osc.frequency.value = freq
-  adsr()
+    @output = 0
+    @gainnode.gain.value = @output
+  , @r + @grain * 2)
 
 # bind keys to frequencies using mousetrap
 keyboard = ->
@@ -203,15 +200,19 @@ keyboard = ->
       note v[1]
 
     # keydown
-    Mousetrap.bind v[0], ->
+    Mousetrap.bind(v[0], ->
       # play the note
       note v[1]
 
       # highlight the note
       $("##{key}").addClass('active')
+    , 'keydown')
 
     # keyup
     Mousetrap.bind(v[0], ->
+      # trigger the decay
+      noteOff()
+
       # unhighlight the note
       $("##{key}").removeClass('active')
     , 'keyup')
