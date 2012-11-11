@@ -178,6 +178,31 @@ keyboard = ->
     [']',3135.96]
   ]
 
+  # bind a keyevent for each note
   $.each notes, (k,v)->
     Mousetrap.bind v[0], ->
+      # play the note
       note v[1]
+
+      # change numbers and chars to text
+      key = v[0]
+      switch key
+        when ',' then key = 'comma'
+        when '.' then key = 'period'
+        when ';' then key = 'semicolon'
+        when '/' then key = 'slash'
+        when '2' then key = 'two'
+        when '3' then key = 'three'
+        when '5' then key = 'five'
+        when '6' then key = 'six'
+        when '7' then key = 'seven'
+        when '0' then key = 'zero'
+        when '[' then key = 'leftbracket'
+        when '=' then key = 'equals'
+        when ']' then key = 'rightbracket'
+
+      # highlight the note
+      $("##{key}").addClass('active')
+      setTimeout(->
+        $("##{key}").removeClass('active')
+      , 100)

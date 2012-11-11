@@ -1,0 +1,79 @@
+=stack
+  float: left
+  clear: both
+
+=stackwide
+  +stack
+  width: 100%
+
+*
+  -moz-box-sizing: border-box
+  -webkit-box-sizing: border-box
+  box-sizing: border-box
+
+h2
+  +stack
+  margin:
+    top: 50px
+
+label
+  +stack
+  width: 200px
+
+label input
+  +stackwide
+
+.octave
+  +stackwide
+  margin:
+    bottom: 50px
+  position: relative
+  height: 200px
+  border: 1px solid black
+
+  .white, .black
+    position: absolute
+    top: 0
+    left: 0
+    width: 100%
+
+    &.white
+      height: 100%
+
+    &.black
+      height: 60%
+
+  a
+    float: left
+    width: 60px
+    height: 100%
+    border: 1px solid black
+    color: black
+    text-align: center
+    text-decoration: none
+    font-size: 13px
+    padding:
+      top: 150px
+
+    &.active
+      background: gray
+
+  .black
+    a
+      background: black
+      width: 40px
+      height: 100%
+      color: #fff
+      padding: 0
+        top: 80px
+
+      &.active
+        background: gray
+
+    .space
+      float: left
+      width: 20px
+      height: 1px
+
+      &.wide
+        width: 40px
