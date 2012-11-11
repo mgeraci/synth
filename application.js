@@ -28,10 +28,7 @@
     this.gainnode.gain.value = 0;
     this.gainnode.connect(context.destination);
     osc.noteOn(0);
-    osc.frequency.value = 500;
-    return setTimeout(function() {
-      return osc.frequency.value = 900;
-    }, 500);
+    return osc.frequency.value = 500;
   };
 
   adsr = function(a, d, s, sl, r) {
@@ -52,8 +49,26 @@
     if (r == null) {
       r = 100;
     }
-    grain = 10;
+    grain = 1;
     output = 0;
+    if (this.aInnerTimeout != null) {
+      clearTimeout(this.aInnerTimeout);
+    }
+    if (this.dTimeout != null) {
+      clearTimeout(this.dTimeout);
+    }
+    if (this.dInnerTimeout != null) {
+      clearTimeout(this.dInnerTimeout);
+    }
+    if (this.rTimeout != null) {
+      clearTimeout(this.rTimeout);
+    }
+    if (this.rInnerTimeout != null) {
+      clearTimeout(this.rInnerTimeout);
+    }
+    if (this.endTimeout != null) {
+      clearTimeout(this.endTimeout);
+    }
     aNumberOfSteps = a / grain;
     aSizeOfSteps = 1 / aNumberOfSteps;
     dNumberOfSteps = d / grain;
@@ -61,37 +76,37 @@
     rNumberOfSteps = r / grain;
     rSizeOfSteps = sl / rNumberOfSteps;
     for (i = _i = 0; 0 <= aNumberOfSteps ? _i < aNumberOfSteps : _i > aNumberOfSteps; i = 0 <= aNumberOfSteps ? ++_i : --_i) {
-      setTimeout(function() {
+      this.aInnerTimeout = setTimeout(function() {
         output += aSizeOfSteps;
         return _this.gainnode.gain.value = output;
       }, i * grain);
     }
-    setTimeout(function() {
+    this.dTimeout = setTimeout(function() {
       var _j, _results;
       _results = [];
       for (i = _j = 0; 0 <= dNumberOfSteps ? _j < dNumberOfSteps : _j > dNumberOfSteps; i = 0 <= dNumberOfSteps ? ++_j : --_j) {
-        _results.push(setTimeout(function() {
+        _results.push(_this.dInnerTimeout = setTimeout(function() {
           output -= dSizeOfSteps;
           return _this.gainnode.gain.value = output;
         }, i * grain));
       }
       return _results;
     }, a);
-    setTimeout(function() {
+    this.rTimeout = setTimeout(function() {
       var _j, _results;
       _results = [];
       for (i = _j = 0; 0 <= rNumberOfSteps ? _j < rNumberOfSteps : _j > rNumberOfSteps; i = 0 <= rNumberOfSteps ? ++_j : --_j) {
-        _results.push(setTimeout(function() {
+        _results.push(_this.rInnerTimeout = setTimeout(function() {
           output -= rSizeOfSteps;
           return _this.gainnode.gain.value = output;
         }, i * grain));
       }
       return _results;
     }, a + d + s);
-    return setTimeout(function() {
+    return this.endTimeout = setTimeout(function() {
       output = 0;
       return _this.gainnode.gain.value = output;
-    }, a + d + s + r);
+    }, a + d + s + r + grain * 2);
   };
 
 }).call(this);

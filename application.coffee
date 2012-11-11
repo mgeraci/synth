@@ -30,13 +30,17 @@ oscillator = ->
 
   osc.frequency.value = 500
 
-  setTimeout(->
-    osc.frequency.value = 900
-  , 500)
-
 adsr = (a = 80, d = 100, s = 500, sl = 0.5, r = 100)->
-  grain = 10
-  output = 0
+  grain = 1 # frequency of steps
+  output = 0 # let's start at 0
+
+  # clear any timeouts that exist from other notes
+  clearTimeout(@aInnerTimeout) if @aInnerTimeout?
+  clearTimeout(@dTimeout) if @dTimeout?
+  clearTimeout(@dInnerTimeout) if @dInnerTimeout?
+  clearTimeout(@rTimeout) if @rTimeout?
+  clearTimeout(@rInnerTimeout) if @rInnerTimeout?
+  clearTimeout(@endTimeout) if @endTimeout?
 
   # you should get from start to end in a ms, with steps of @grain
   aNumberOfSteps = a / grain
@@ -50,15 +54,15 @@ adsr = (a = 80, d = 100, s = 500, sl = 0.5, r = 100)->
 
   # attack
   for i in [0...aNumberOfSteps]
-    setTimeout(=>
+    @aInnerTimeout = setTimeout(=>
       output += aSizeOfSteps
       @gainnode.gain.value = output
     , i * grain)
 
   # decay
-  setTimeout(=>
+  @dTimeout = setTimeout(=>
     for i in [0...dNumberOfSteps]
-      setTimeout(=>
+      @dInnerTimeout = setTimeout(=>
         output -= dSizeOfSteps
         @gainnode.gain.value = output
       , i * grain)
@@ -67,16 +71,16 @@ adsr = (a = 80, d = 100, s = 500, sl = 0.5, r = 100)->
   # sustain doesn't change the volume level, so nothing happens here
 
   # release
-  setTimeout(=>
+  @rTimeout = setTimeout(=>
     for i in [0...rNumberOfSteps]
-      setTimeout(=>
+      @rInnerTimeout = setTimeout(=>
         output -= rSizeOfSteps
         @gainnode.gain.value = output
       , i * grain)
   , a + d + s)
 
   # and set to 0 at the end
-  setTimeout(=>
+  @endTimeout = setTimeout(=>
     output = 0
     @gainnode.gain.value = output
-  , a + d + s + r)
+  , a + d + s + r + grain * 2)
