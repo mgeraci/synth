@@ -1,7 +1,5 @@
 $(->
   init()
-  $('button').click ->
-    adsr()
 )
 
 init = ()->
@@ -32,10 +30,6 @@ controlWatchers = ->
   $('#sustain-level').on 'change', (e)=>
     @sl = $(e.target).val() / 100
 
-  #Sine wave = 0
-  #Square wave = 1
-  #Sawtooth wave = 2
-  #Triangle wave = 3
   $('#wave').on 'change', (e)=>
     span = $(e.target).siblings('span')
     switch parseInt $(e.target).val()
@@ -54,15 +48,17 @@ controlWatchers = ->
 
     @osc.type = wave
 
+# set defaults for the parameters
 setDefaults = ->
-  $('#attack').val(10).trigger('change')
+  $('#attack').val(5).trigger('change')
   $('#decay').val(20).trigger('change')
-  $('#sustain').val(100).trigger('change')
+  #$('#sustain').val(100).trigger('change')
   $('#release').val(60).trigger('change')
   $('#sustain-level').val(50).trigger('change')
 
 # create an oscillator, connect it, and turn it on
 oscillator = ->
+  @output = 0 # let's start the output at 0
   @osc = @context.createOscillator()
   @gainnode = @context.createGainNode()
   @osc.connect(@gainnode)
@@ -73,10 +69,14 @@ oscillator = ->
 
   @osc.frequency.value = 500
 
-# adsr stands for attack, decay, sustain, release
-adsr = ->
+# set the frequency and trigger the attack
+note = (freq)->
+  @osc.frequency.value = freq
+  noteOn()
+
+# trigger the attack and decay of a note
+noteOn = ->
   @grain = 1 # frequency of steps
-  @output = 0 # let's start at 0
 
   # clear any timeouts that exist from other notes
   clearTimeout(@aInnerTimeout) if @aInnerTimeout?
@@ -87,7 +87,7 @@ adsr = ->
 
   # you should get from start to end in a ms, with steps of @grain
   aNumberOfSteps = @a / @grain
-  aSizeOfSteps = 1 / aNumberOfSteps
+  aSizeOfSteps = (1 - @output) / aNumberOfSteps
 
   dNumberOfSteps = @d / @grain
   dSizeOfSteps = (1 - @sl) / dNumberOfSteps
@@ -108,12 +108,14 @@ adsr = ->
       , i * @grain)
   , @a)
 
-note = (freq)->
-  console.log 'note'
-  @osc.frequency.value = freq
-  adsr()
-
+# trigger the decay
 noteOff = ->
+  # clear any timeouts that exist from other notes
+  clearTimeout(@aInnerTimeout) if @aInnerTimeout?
+  clearTimeout(@dTimeout) if @dTimeout?
+  clearTimeout(@dInnerTimeout) if @dInnerTimeout?
+  clearTimeout(@rInnerTimeout) if @rInnerTimeout?
+  clearTimeout(@endTimeout) if @endTimeout?
   rNumberOfSteps = @r / @grain
   rSizeOfSteps = @sl / rNumberOfSteps
 
@@ -132,6 +134,7 @@ noteOff = ->
 
 # bind keys to frequencies using mousetrap
 keyboard = ->
+  # map a key with a frequency
   notes = [
     ['z',523.25],
     ['s',554.37],
@@ -175,6 +178,8 @@ keyboard = ->
     [']',3135.96]
   ]
 
+  @keysDown = []
+
   # bind a keyevent for each note
   $.each notes, (k,v)->
     # change numbers and chars to text
@@ -200,18 +205,24 @@ keyboard = ->
       note v[1]
 
     # keydown
-    Mousetrap.bind(v[0], ->
-      # play the note
-      note v[1]
+    Mousetrap.bind v[0], (e)->
+      # run if this key isn't already down
+      if $.inArray(e.keyIdentifier, @keysDown) == -1
+        @keysDown.push e.keyIdentifier
 
-      # highlight the note
-      $("##{key}").addClass('active')
-    , 'keydown')
+        # play the note
+        note v[1]
+
+        # highlight the note
+        $("##{key}").addClass('active')
 
     # keyup
-    Mousetrap.bind(v[0], ->
+    Mousetrap.bind(v[0], (e)->
+      # remove the key you let go of
+      @keysDown = _.without @keysDown, e.keyIdentifier
+
       # trigger the decay
-      noteOff()
+      noteOff() if @keysDown.length == 0
 
       # unhighlight the note
       $("##{key}").removeClass('active')
