@@ -36,8 +36,30 @@
     $('#release').on('change', function(e) {
       return _this.r = (500 * $(e.target).val()) / 100;
     });
-    return $('#sustain-level').on('change', function(e) {
+    $('#sustain-level').on('change', function(e) {
       return _this.sl = $(e.target).val() / 100;
+    });
+    return $('#wave').on('change', function(e) {
+      var span, wave;
+      span = $(e.target).siblings('span');
+      switch (parseInt($(e.target).val())) {
+        case 0:
+          wave = 0;
+          span.text('sine');
+          break;
+        case 25:
+          wave = 1;
+          span.text('square');
+          break;
+        case 50:
+          wave = 2;
+          span.text('saw');
+          break;
+        case 75:
+          wave = 3;
+          span.text('triangle');
+      }
+      return _this.osc.type = wave;
     });
   };
 
@@ -50,14 +72,13 @@
   };
 
   oscillator = function() {
-    var osc;
-    osc = this.context.createOscillator();
+    this.osc = this.context.createOscillator();
     this.gainnode = this.context.createGainNode();
-    osc.connect(this.gainnode);
+    this.osc.connect(this.gainnode);
     this.gainnode.gain.value = 0;
     this.gainnode.connect(context.destination);
-    osc.noteOn(0);
-    return osc.frequency.value = 500;
+    this.osc.noteOn(0);
+    return this.osc.frequency.value = 500;
   };
 
   adsr = function() {

@@ -31,6 +31,28 @@ controlWatchers = ->
   $('#sustain-level').on 'change', (e)=>
     @sl = $(e.target).val() / 100
 
+  #Sine wave = 0
+  #Square wave = 1
+  #Sawtooth wave = 2
+  #Triangle wave = 3
+  $('#wave').on 'change', (e)=>
+    span = $(e.target).siblings('span')
+    switch parseInt $(e.target).val()
+      when 0
+        wave = 0
+        span.text('sine')
+      when 25
+        wave = 1
+        span.text('square')
+      when 50
+        wave = 2
+        span.text('saw')
+      when 75
+        wave = 3
+        span.text('triangle')
+
+    @osc.type = wave
+
 setDefaults = ->
   $('#attack').val(10).trigger('change')
   $('#decay').val(20).trigger('change')
@@ -40,22 +62,15 @@ setDefaults = ->
 
 # create an oscillator, connect it, and turn it on
 oscillator = ->
-  osc = @context.createOscillator()
+  @osc = @context.createOscillator()
   @gainnode = @context.createGainNode()
-  osc.connect(@gainnode)
-
+  @osc.connect(@gainnode)
   @gainnode.gain.value = 0
 
-  #Sine wave = 0
-  #Square wave = 1
-  #Sawtooth wave = 2
-  #Triangle wave = 3
-  #osc.type = 0
-
   @gainnode.connect(context.destination) # Connect to speakers
-  osc.noteOn(0) # Start generating sound immediately
+  @osc.noteOn(0) # Start generating sound immediately
 
-  osc.frequency.value = 500
+  @osc.frequency.value = 500
 
 # adsr stands for attack, decay, sustain, release
 adsr = ->
