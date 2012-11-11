@@ -154,50 +154,54 @@
     var notes;
     notes = [['z', 523.25], ['s', 554.37], ['x', 587.33], ['d', 622.25], ['c', 659.26], ['v', 698.46], ['g', 739.99], ['b', 783.99], ['h', 830.61], ['n', 880], ['j', 932.33], ['m', 987.77], [',', 1046.5], ['l', 1108.73], ['.', 1174.66], [';', 1244.51], ['/', 1318.51], ['q', 1046.5], ['2', 1108.73], ['w', 1174.66], ['3', 1244.51], ['e', 1318.51], ['r', 1396.91], ['5', 1479.98], ['t', 1567.98], ['6', 1661.22], ['y', 1760], ['7', 1864.66], ['u', 1975.53], ['i', 2093.00], ['9', 2217.46], ['o', 2349.32], ['0', 2489.02], ['p', 2637.02], ['[', 2793.83], ['=', 2959.96], [']', 3135.96]];
     return $.each(notes, function(k, v) {
+      var key;
+      key = v[0];
+      switch (key) {
+        case ',':
+          key = 'comma';
+          break;
+        case '.':
+          key = 'period';
+          break;
+        case ';':
+          key = 'semicolon';
+          break;
+        case '/':
+          key = 'slash';
+          break;
+        case '2':
+          key = 'two';
+          break;
+        case '3':
+          key = 'three';
+          break;
+        case '5':
+          key = 'five';
+          break;
+        case '6':
+          key = 'six';
+          break;
+        case '7':
+          key = 'seven';
+          break;
+        case '0':
+          key = 'zero';
+          break;
+        case '[':
+          key = 'leftbracket';
+          break;
+        case '=':
+          key = 'equals';
+          break;
+        case ']':
+          key = 'rightbracket';
+      }
+      $("#" + key).click(function(e) {
+        e.preventDefault();
+        return note(v[1]);
+      });
       return Mousetrap.bind(v[0], function() {
-        var key;
         note(v[1]);
-        key = v[0];
-        switch (key) {
-          case ',':
-            key = 'comma';
-            break;
-          case '.':
-            key = 'period';
-            break;
-          case ';':
-            key = 'semicolon';
-            break;
-          case '/':
-            key = 'slash';
-            break;
-          case '2':
-            key = 'two';
-            break;
-          case '3':
-            key = 'three';
-            break;
-          case '5':
-            key = 'five';
-            break;
-          case '6':
-            key = 'six';
-            break;
-          case '7':
-            key = 'seven';
-            break;
-          case '0':
-            key = 'zero';
-            break;
-          case '[':
-            key = 'leftbracket';
-            break;
-          case '=':
-            key = 'equals';
-            break;
-          case ']':
-            key = 'rightbracket';
-        }
         $("#" + key).addClass('active');
         return setTimeout(function() {
           return $("#" + key).removeClass('active');
