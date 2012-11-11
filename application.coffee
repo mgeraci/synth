@@ -8,10 +8,37 @@ init = ()->
   try
     @context = new webkitAudioContext()
   catch error
-    alert('Web Audio API is not supported in this browser')
+    alert('Web Audio API is not supported in your browser')
 
-  oscillator() if @context
+  if @context
+    oscillator()
+    controlWatchers()
+    setDefaults()
 
+controlWatchers = ->
+  $('#attack').on 'change', (e)=>
+    @a = (500 * $(e.target).val()) / 100
+
+  $('#decay').on 'change', (e)=>
+    @d = (500 * $(e.target).val()) / 100
+
+  $('#sustain').on 'change', (e)=>
+    @s = (500 * $(e.target).val()) / 100
+
+  $('#release').on 'change', (e)=>
+    @r = (500 * $(e.target).val()) / 100
+
+  $('#sustain-level').on 'change', (e)=>
+    @sl = $(e.target).val() / 100
+
+setDefaults = ->
+  $('#attack').val(10).trigger('change')
+  $('#decay').val(20).trigger('change')
+  $('#sustain').val(100).trigger('change')
+  $('#release').val(60).trigger('change')
+  $('#sustain-level').val(50).trigger('change')
+
+# create an oscillator, connect it, and turn it on
 oscillator = ->
   osc = @context.createOscillator()
   @gainnode = @context.createGainNode()
@@ -30,7 +57,8 @@ oscillator = ->
 
   osc.frequency.value = 500
 
-adsr = (a = 80, d = 100, s = 500, sl = 0.5, r = 100)->
+# adsr stands for attack, decay, sustain, release
+adsr = ->
   grain = 1 # frequency of steps
   output = 0 # let's start at 0
 
@@ -43,14 +71,14 @@ adsr = (a = 80, d = 100, s = 500, sl = 0.5, r = 100)->
   clearTimeout(@endTimeout) if @endTimeout?
 
   # you should get from start to end in a ms, with steps of @grain
-  aNumberOfSteps = a / grain
+  aNumberOfSteps = @a / grain
   aSizeOfSteps = 1 / aNumberOfSteps
 
-  dNumberOfSteps = d / grain
-  dSizeOfSteps = (1 - sl) / dNumberOfSteps
+  dNumberOfSteps = @d / grain
+  dSizeOfSteps = (1 - @sl) / dNumberOfSteps
 
-  rNumberOfSteps = r / grain
-  rSizeOfSteps = sl / rNumberOfSteps
+  rNumberOfSteps = @r / grain
+  rSizeOfSteps = @sl / rNumberOfSteps
 
   # attack
   for i in [0...aNumberOfSteps]
@@ -66,7 +94,7 @@ adsr = (a = 80, d = 100, s = 500, sl = 0.5, r = 100)->
         output -= dSizeOfSteps
         @gainnode.gain.value = output
       , i * grain)
-  , a)
+  , @a)
 
   # sustain doesn't change the volume level, so nothing happens here
 
@@ -77,10 +105,10 @@ adsr = (a = 80, d = 100, s = 500, sl = 0.5, r = 100)->
         output -= rSizeOfSteps
         @gainnode.gain.value = output
       , i * grain)
-  , a + d + s)
+  , @a + @d + @s)
 
   # and set to 0 at the end
   @endTimeout = setTimeout(=>
     output = 0
     @gainnode.gain.value = output
-  , a + d + s + r + grain * 2)
+  , @a + @d + @s + @r + grain * 2)

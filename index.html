@@ -1,10 +1,32 @@
 <!DOCTYPE html>
 <html lang='en'>
   <head>
+    <link rel='stylesheet' href='./style.css' />
     <script type='text/javascript' src='./jquery-1.8.2.min.js'></script>
     <script type='text/javascript' src='./application.js'></script>
   </head>
   <body>
     <button>click</button>
+    <h2>adsr</h2>
+    <label>
+      attack
+      <input id='attack' type='range' min='10' max'500' />
+    </label>
+    <label>
+      decay
+      <input id='decay' type='range' min='10' max'500' />
+    </label>
+    <label>
+      sustain
+      <input id='sustain' type='range' min='10' max'500' />
+    </label>
+    <label>
+      sustain level
+      <input id='sustain-level' type='range' min='0' max'1' />
+    </label>
+    <label>
+      release
+      <input id='release' type='range' min='10' max'500' />
+    </label>
   </body>
 <html>
