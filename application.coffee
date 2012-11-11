@@ -202,12 +202,16 @@ keyboard = ->
       e.preventDefault()
       note v[1]
 
+    # keydown
     Mousetrap.bind v[0], ->
       # play the note
       note v[1]
 
       # highlight the note
       $("##{key}").addClass('active')
-      setTimeout(->
-        $("##{key}").removeClass('active')
-      , 100)
+
+    # keyup
+    Mousetrap.bind(v[0], ->
+      # unhighlight the note
+      $("##{key}").removeClass('active')
+    , 'keyup')

@@ -200,13 +200,13 @@
         e.preventDefault();
         return note(v[1]);
       });
-      return Mousetrap.bind(v[0], function() {
+      Mousetrap.bind(v[0], function() {
         note(v[1]);
-        $("#" + key).addClass('active');
-        return setTimeout(function() {
-          return $("#" + key).removeClass('active');
-        }, 100);
+        return $("#" + key).addClass('active');
       });
+      return Mousetrap.bind(v[0], function() {
+        return $("#" + key).removeClass('active');
+      }, 'keyup');
     });
   };
 
