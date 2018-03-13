@@ -1,0 +1,23 @@
+{
+  "name": "synth",
+  "version": "1.0.0",
+  "description": "A simple web-audio synthesizer",
+  "main": "application.js",
+  "dependencies": {},
+  "devDependencies": {
+    "coffeescript": "^2.2.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mgeraci/synth.git"
+  },
+  "author": "Michael P. Geraci",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mgeraci/synth/issues"
+  },
+  "homepage": "https://github.com/mgeraci/synth#readme"
+}
