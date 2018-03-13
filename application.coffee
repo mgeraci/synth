@@ -4,7 +4,7 @@ $(->
 
 init = ()->
   try
-    @context = new webkitAudioContext()
+    @context = new (window.AudioContext || window.webkitAudioContext)
   catch error
     alert('Web Audio API is not supported in your browser')
 

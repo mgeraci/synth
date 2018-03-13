@@ -9,7 +9,7 @@
   init = function() {
     var error;
     try {
-      this.context = new webkitAudioContext();
+      this.context = new (window.AudioContext || window.webkitAudioContext);
     } catch (error1) {
       error = error1;
       alert('Web Audio API is not supported in your browser');
