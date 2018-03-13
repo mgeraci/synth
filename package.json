@@ -8,7 +8,7 @@
     "coffeescript": "^2.2.3"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "coffee": "coffee -wc application.coffee"
   },
   "repository": {
     "type": "git",

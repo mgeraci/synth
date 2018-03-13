@@ -5,4 +5,6 @@ https://mgeraci.github.io/synth
 
 To work on the code, assuming that you have Node and NPM installed, run
 `npm install` to install this project's packages. Then, to compile the
-javascript, run ``.
+javascript, run `npm run coffee`.
+
+TODO: add a command to compile Sass.
