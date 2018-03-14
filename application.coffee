@@ -2,6 +2,9 @@ $(->
   init()
 )
 
+# the amount of smoothing between frequencies; lower is less smoothing
+TIME_CONSTANT = 0
+
 init = ()->
   try
     @context = new (window.AudioContext || window.webkitAudioContext)
@@ -34,19 +37,16 @@ controlWatchers = ->
     span = $(e.target).siblings('span')
     switch parseInt $(e.target).val()
       when 0
-        wave = 0
-        span.text('sine')
+        wave = 'sine'
       when 25
-        wave = 1
-        span.text('square')
+        wave = 'square'
       when 50
-        wave = 2
-        span.text('saw')
+        wave = 'sawtooth'
       when 75
-        wave = 3
-        span.text('triangle')
+        wave = 'triangle'
 
     @osc.type = wave
+    span.text(wave)
 
 # set defaults for the parameters
 setDefaults = ->
@@ -60,18 +60,18 @@ setDefaults = ->
 oscillator = ->
   @output = 0 # let's start the output at 0
   @osc = @context.createOscillator()
-  @gainnode = @context.createGainNode()
+  @gainnode = @context.createGain()
   @osc.connect(@gainnode)
-  @gainnode.gain.value = 0
+  @gainnode.gain.setValueAtTime(0, @context.currentTime)
 
   @gainnode.connect(context.destination) # Connect to speakers
-  @osc.noteOn(0) # Start generating sound immediately
+  @osc.start() # Start generating sound immediately
 
-  @osc.frequency.value = 500
+  @osc.frequency.setTargetAtTime(500, @context.currentTime, TIME_CONSTANT)
 
 # set the frequency and trigger the attack
 note = (freq)->
-  @osc.frequency.value = freq
+  @osc.frequency.setTargetAtTime(freq, @context.currentTime, TIME_CONSTANT)
   noteOn()
 
 # trigger the attack and decay of a note
@@ -96,7 +96,7 @@ noteOn = ->
   for i in [0...aNumberOfSteps]
     @aInnerTimeout = setTimeout(=>
       @output += aSizeOfSteps
-      @gainnode.gain.value = @output
+      @gainnode.gain.setValueAtTime(@output, @context.currentTime)
     , i * @grain)
 
   # decay
@@ -104,7 +104,7 @@ noteOn = ->
     for i in [0...dNumberOfSteps]
       @dInnerTimeout = setTimeout(=>
         @output -= dSizeOfSteps
-        @gainnode.gain.value = @output
+        @gainnode.gain.setValueAtTime(@output, @context.currentTime)
       , i * @grain)
   , @a)
 
@@ -123,13 +123,13 @@ noteOff = ->
   for i in [0...rNumberOfSteps]
     @rInnerTimeout = setTimeout(=>
       @output -= rSizeOfSteps
-      @gainnode.gain.value = @output
+      @gainnode.gain.setValueAtTime(@output, @context.currentTime)
     , i * @grain)
 
   # and set to 0 at the end
   @endTimeout = setTimeout(=>
     @output = 0
-    @gainnode.gain.value = @output
+    @gainnode.gain.setValueAtTime(@output, @context.currentTime)
   , @r + @grain * 2)
 
 # bind keys to frequencies using mousetrap
